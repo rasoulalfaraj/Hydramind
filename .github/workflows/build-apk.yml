@@ -1,0 +1,50 @@
+name: Build Android APK from AI Studio Web App
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # يتيح لك تشغيل البناء يدوياً بزر واحد
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Dependencies & Build Web App
+        run: |
+          npm install
+          npm run build
+
+      - name: Add Capacitor & Generate Android Project
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          # يمكنك تغيير اسم التطبيق والـ Package ID في السطر التالي
+          npx cap init "MyAIApp" "com.rasoul.aiapp" --web-dir dist
+          npx cap add android
+          npx cap sync android
+
+      - name: Build Debug APK
+        working-directory: ./android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Ready APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: App-Ready-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
