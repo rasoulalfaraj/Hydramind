@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="firestore_database_id" translatable="false">ai-studio-android-hydramin-429c671c-6c27-4a13-99a8-8b32a2510b8e</string>
+    <string name="recaptcha_site_key" translatable="false">6LcQjxUuAAAAAJOHh_2FCvONOOD939HlwQyi1x5u</string>
+</resources>

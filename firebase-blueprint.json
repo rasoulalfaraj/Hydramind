@@ -1,0 +1,104 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Personalized hydration profile, medical restrictions, Iraq Heat Mode profile, and preferences.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "name": { "type": "string", "description": "User display name" },
+        "age": { "type": "integer", "description": "Age in years" },
+        "weightKg": { "type": "integer", "description": "Body weight in kilograms" },
+        "heightCm": { "type": "integer", "description": "Height in centimeters" },
+        "biologicalSex": { "type": "string", "description": "Optional biological sex context for hydration formulas" },
+        "activityLevel": { "type": "string", "description": "Physical activity level" },
+        "workEnvironment": { "type": "string", "description": "Typical work environment" },
+        "outdoorMinutes": { "type": "integer", "description": "Daily outdoor heat exposure in minutes" },
+        "exerciseMinutes": { "type": "integer", "description": "Daily exercise duration in minutes" },
+        "sweatingLevel": { "type": "string", "description": "Typical sweating level" },
+        "wakeHour": { "type": "integer", "description": "Typical wake-up hour (0-23)" },
+        "bedHour": { "type": "integer", "description": "Typical bedtime hour (0-23)" },
+        "medicalRestrictionType": { "type": "string", "description": "Medical fluid restriction category" },
+        "prescribedLimitMl": { "type": "integer", "description": "Physician-directed daily fluid limit in ml (0 if none)" },
+        "iraqHeatProfile": { "type": "string", "description": "Specialized Iraq Heat Mode profile" },
+        "selectedCity": { "type": "string", "description": "Selected city for real-time weather intelligence" },
+        "languageCode": { "type": "string", "description": "Interface language code (ar or en)" },
+        "aiDialect": { "type": "string", "description": "AI coach Arabic dialect (MSA or IRAQI)" },
+        "habitLearningEnabled": { "type": "boolean", "description": "Whether behavioral habit learning is enabled" },
+        "reminderIntervalMinutes": { "type": "integer", "description": "Base reminder interval in minutes" },
+        "remindersEnabled": { "type": "boolean", "description": "Whether smart reminders are active" },
+        "onboardingCompleted": { "type": "boolean", "description": "Whether onboarding has been completed" },
+        "streakDays": { "type": "integer", "description": "Current healthy hydration streak in days" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of last update (FieldValue.serverTimestamp())" }
+      },
+      "required": [
+        "userId",
+        "name",
+        "age",
+        "weightKg",
+        "heightCm",
+        "biologicalSex",
+        "activityLevel",
+        "workEnvironment",
+        "outdoorMinutes",
+        "exerciseMinutes",
+        "sweatingLevel",
+        "wakeHour",
+        "bedHour",
+        "medicalRestrictionType",
+        "prescribedLimitMl",
+        "iraqHeatProfile",
+        "selectedCity",
+        "languageCode",
+        "aiDialect",
+        "habitLearningEnabled",
+        "reminderIntervalMinutes",
+        "remindersEnabled",
+        "onboardingCompleted",
+        "streakDays",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "HydrationLog": {
+      "title": "HydrationLog",
+      "description": "Individual water or beverage consumption log entry.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "beverageType": { "type": "string", "description": "Beverage category (WATER, TEA, COFFEE, MILK, JUICE, OTHER)" },
+        "amountMl": { "type": "integer", "description": "Total volume consumed in ml" },
+        "effectiveHydrationMl": { "type": "integer", "description": "Science-adjusted net hydration contribution in ml" },
+        "dateKey": { "type": "string", "description": "Local date string YYYY-MM-DD" },
+        "hourOfDay": { "type": "integer", "description": "Hour of day (0-23) for habit learning" },
+        "loggedAtMillis": { "type": "integer", "description": "Client epoch timestamp in milliseconds" },
+        "note": { "type": "string", "description": "Optional user note" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of last update (FieldValue.serverTimestamp())" }
+      },
+      "required": [
+        "userId",
+        "beverageType",
+        "amountMl",
+        "effectiveHydrationMl",
+        "dateKey",
+        "hourOfDay",
+        "loggedAtMillis",
+        "note",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Per-user hydration profile and settings"
+    },
+    "/users/{userId}/logs/{logId}": {
+      "schema": "HydrationLog",
+      "description": "Per-user water and beverage consumption logs"
+    }
+  }
+}

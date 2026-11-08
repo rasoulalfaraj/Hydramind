@@ -1,0 +1,6 @@
+{
+  "name": "HydraMind AI",
+  "description": "Arabic-first AI-powered smart hydration, weather intelligence, Iraq Heat Mode, and adaptive reminder application.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

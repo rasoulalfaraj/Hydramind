@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 80 &&
+             data.age is int && data.age >= 5 && data.age <= 120 &&
+             data.weightKg is int && data.weightKg >= 15 && data.weightKg <= 300 &&
+             data.heightCm is int && data.heightCm >= 50 && data.heightCm <= 250 &&
+             data.biologicalSex is string && data.biologicalSex.size() >= 1 && data.biologicalSex.size() <= 30 &&
+             data.activityLevel is string && data.activityLevel.size() >= 1 && data.activityLevel.size() <= 30 &&
+             data.workEnvironment is string && data.workEnvironment.size() >= 1 && data.workEnvironment.size() <= 40 &&
+             data.outdoorMinutes is int && data.outdoorMinutes >= 0 && data.outdoorMinutes <= 1440 &&
+             data.exerciseMinutes is int && data.exerciseMinutes >= 0 && data.exerciseMinutes <= 600 &&
+             data.sweatingLevel is string && data.sweatingLevel.size() >= 1 && data.sweatingLevel.size() <= 30 &&
+             data.wakeHour is int && data.wakeHour >= 0 && data.wakeHour <= 23 &&
+             data.bedHour is int && data.bedHour >= 0 && data.bedHour <= 23 &&
+             data.medicalRestrictionType is string && data.medicalRestrictionType.size() >= 1 && data.medicalRestrictionType.size() <= 50 &&
+             data.prescribedLimitMl is int && data.prescribedLimitMl >= 0 && data.prescribedLimitMl <= 10000 &&
+             data.iraqHeatProfile is string && data.iraqHeatProfile.size() >= 1 && data.iraqHeatProfile.size() <= 40 &&
+             data.selectedCity is string && data.selectedCity.size() >= 1 && data.selectedCity.size() <= 80 &&
+             data.languageCode is string && data.languageCode.size() >= 2 && data.languageCode.size() <= 10 &&
+             data.aiDialect is string && data.aiDialect.size() >= 2 && data.aiDialect.size() <= 20 &&
+             data.habitLearningEnabled is bool &&
+             data.reminderIntervalMinutes is int && data.reminderIntervalMinutes >= 15 && data.reminderIntervalMinutes <= 240 &&
+             data.remindersEnabled is bool &&
+             data.onboardingCompleted is bool &&
+             data.streakDays is int && data.streakDays >= 0 && data.streakDays <= 10000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidHydrationLog(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.beverageType is string && data.beverageType.size() >= 1 && data.beverageType.size() <= 30 &&
+             data.amountMl is int && data.amountMl >= 10 && data.amountMl <= 5000 &&
+             data.effectiveHydrationMl is int && data.effectiveHydrationMl >= 5 && data.effectiveHydrationMl <= 5000 &&
+             data.dateKey is string && data.dateKey.size() >= 8 && data.dateKey.size() <= 12 &&
+             data.hourOfDay is int && data.hourOfDay >= 0 && data.hourOfDay <= 23 &&
+             data.loggedAtMillis is int && data.loggedAtMillis > 0 &&
+             data.note is string && data.note.size() <= 200 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().keys().hasAll([
+                         'userId', 'name', 'age', 'weightKg', 'heightCm', 'biologicalSex',
+                         'activityLevel', 'workEnvironment', 'outdoorMinutes', 'exerciseMinutes',
+                         'sweatingLevel', 'wakeHour', 'bedHour', 'medicalRestrictionType',
+                         'prescribedLimitMl', 'iraqHeatProfile', 'selectedCity', 'languageCode',
+                         'aiDialect', 'habitLearningEnabled', 'reminderIntervalMinutes',
+                         'remindersEnabled', 'onboardingCompleted', 'streakDays', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'name', 'age', 'weightKg', 'heightCm', 'biologicalSex',
+                         'activityLevel', 'workEnvironment', 'outdoorMinutes', 'exerciseMinutes',
+                         'sweatingLevel', 'wakeHour', 'bedHour', 'medicalRestrictionType',
+                         'prescribedLimitMl', 'iraqHeatProfile', 'selectedCity', 'languageCode',
+                         'aiDialect', 'habitLearningEnabled', 'reminderIntervalMinutes',
+                         'remindersEnabled', 'onboardingCompleted', 'streakDays', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'name', 'age', 'weightKg', 'heightCm', 'biologicalSex',
+                         'activityLevel', 'workEnvironment', 'outdoorMinutes', 'exerciseMinutes',
+                         'sweatingLevel', 'wakeHour', 'bedHour', 'medicalRestrictionType',
+                         'prescribedLimitMl', 'iraqHeatProfile', 'selectedCity', 'languageCode',
+                         'aiDialect', 'habitLearningEnabled', 'reminderIntervalMinutes',
+                         'remindersEnabled', 'onboardingCompleted', 'streakDays', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+
+      match /logs/{logId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId;
+        allow list: if isSignedIn() && request.auth.uid == userId && resource.data.userId == request.auth.uid;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(logId) &&
+                         request.auth.uid == userId &&
+                         incoming().keys().hasAll([
+                           'userId', 'beverageType', 'amountMl', 'effectiveHydrationMl',
+                           'dateKey', 'hourOfDay', 'loggedAtMillis', 'note', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'beverageType', 'amountMl', 'effectiveHydrationMl',
+                           'dateKey', 'hourOfDay', 'loggedAtMillis', 'note', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidHydrationLog(incoming());
+
+        allow update: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(logId) &&
+                         request.auth.uid == userId &&
+                         isValidHydrationLog(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'beverageType', 'amountMl', 'effectiveHydrationMl',
+                           'dateKey', 'hourOfDay', 'loggedAtMillis', 'note', 'updatedAt'
+                         ]);
+
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId;
+      }
+    }
+  }
+}
